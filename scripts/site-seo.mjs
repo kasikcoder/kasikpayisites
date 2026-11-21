@@ -1,0 +1,221 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { brand, origin, pages, structuredData, whatsapp } from '../src/seo.mjs';
+import { blogMarkup, serviceGuides } from './blog-markup.mjs';
+import { menuMarkup, menus } from '../public/runtime/kasik-payi-menu.mjs';
+
+const escapeHtml = (value) => String(value)
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;');
+
+function heroImage(path, page) {
+  const src = new URL(page.image.url).pathname;
+  const small = src.replace(/(?:-1024)?\.webp$/, '-512.webp');
+  const sizes = path === '/'
+    ? '(max-width: 809.98px) calc(100vw - 40px), (max-width: 1199.98px) 550px, 598px'
+    : page.type === 'article'
+      ? '(max-width: 700px) 92vw, 73ch'
+      : '(max-width: 700px) 84vw, (max-width: 1250px) 36vw, 480px';
+  return { src, sizes, srcset: `${small} 512w, ${src} ${page.image.width}w` };
+}
+
+function menuComparison() {
+  return menus.map(({ price, dishes }, index) => {
+    const label = `Menü ${index + 1}`;
+    const message = encodeURIComponent(
+      `Merhaba Kaşık Payı, ${label} (${dishes.join(', ')}) için teklif almak istiyorum.\nTarih ve yemek saati: \nKişi sayısı: \nTeslimat adresi: `,
+    );
+    return `<tr>
+      <th scope="row">${label}</th>
+      <td>${dishes.map(escapeHtml).join(', ')}</td>
+      <td>${price} TL</td>
+      <td><a href="${whatsapp}?text=${message}" aria-label="${label} için WhatsApp’tan teklif al">Teklif al</a></td>
+    </tr>`;
+  }).join('\n');
+}
+
+function pageHead(path, page, robots) {
+  const url = origin + path;
+  const tag = (kind, name, content) => `<meta ${kind}="${name}" content="${escapeHtml(content)}">`;
+  const openGraph = {
+    type: page.type === 'article' ? 'article' : 'website',
+    locale: 'tr_TR',
+    site_name: brand,
+    title: page.title,
+    description: page.description,
+    url,
+    image: page.image.url,
+    'image:width': page.image.width,
+    'image:height': page.image.height,
+    'image:alt': page.image.alt,
+  };
+  const twitter = {
+    card: 'summary_large_image',
+    title: page.title,
+    description: page.description,
+    image: page.image.url,
+    'image:alt': page.image.alt,
+  };
+  const json = JSON.stringify(structuredData(path, page)).replaceAll('<', '\\u003c');
+  const hero = heroImage(path, page);
+
+  return [
+    `<title>${escapeHtml(page.title)}</title>`,
+    tag('name', 'description', page.description),
+    tag('name', 'robots', robots),
+    `<link rel="canonical" href="${escapeHtml(url)}">`,
+    `<link rel="preload" as="image" imagesrcset="${hero.srcset}" imagesizes="${hero.sizes}" fetchpriority="high">`,
+    '<link rel="icon" type="image/png" sizes="64x64" href="/media/kasik-payi-favicon.png">',
+    ...Object.entries(openGraph).map(([name, content]) => tag('property', `og:${name}`, content)),
+    ...Object.entries(twitter).map(([name, content]) => tag('name', `twitter:${name}`, content)),
+    `<script type="application/ld+json">${json}</script>`,
+  ].join('\n    ');
+}
+
+const crawlFiles = {
+  '/robots.txt': {
+    type: 'text/plain; charset=utf-8',
+    body: `User-agent: *\nAllow: /\n\nUser-agent: OAI-SearchBot\nAllow: /\n\nSitemap: ${origin}/sitemap.xml\n`,
+  },
+  '/sitemap.xml': {
+    type: 'application/xml; charset=utf-8',
+    body: [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">',
+      ...Object.entries(pages).map(([path, { image }]) =>
+        `  <url>\n    <loc>${escapeHtml(origin + path)}</loc>\n    <image:image><image:loc>${escapeHtml(image.url)}</image:loc></image:image>\n  </url>`),
+      '</urlset>',
+      '',
+    ].join('\n'),
+  },
+};
+
+// Cloudflare static assets can serve HTML before the Sites Worker is invoked.
+const permanentRedirects = Object.keys(pages).filter(path => path !== '/').flatMap(path => [
+  `${path.slice(0, -1)} ${path} 301`,
+  `${path}index.html ${path} 301`,
+]).join('\n') + '\n';
+
+const homeFragments = ['catering', 'service-areas', 'ordering-guide', 'order', 'footer'];
+const fragmentFiles = [...homeFragments, 'service-nav'];
+const fragments = fragmentFiles.map(name => [name, new URL(`../src/${name}.html`, import.meta.url)]);
+
+const homeAssets = {
+  '/runtime/kasik-payi-fragments.mjs': () =>
+    'export default ' + JSON.stringify(Object.fromEntries(
+      fragments.filter(([name]) => homeFragments.includes(name))
+        .map(([name, file]) => [name, readFileSync(file, 'utf8').trim()]),
+    )) + ';\n',
+  '/runtime/kasik-payi-meta.mjs': (robots) =>
+    'export default ' + JSON.stringify({
+      title: pages['/'].title,
+      description: pages['/'].description,
+      favicon: '/media/kasik-payi-favicon.png',
+      robots,
+      socialImage: pages['/'].image.url,
+    }) + ';\n',
+};
+
+export const htmlInputs = Object.fromEntries(Object.keys(pages).map(path => [
+  path === '/' ? 'home' : path.slice(1, -1),
+  fileURLToPath(new URL(`..${path}index.html`, import.meta.url)),
+]));
+
+export function siteSeo() {
+  let robots = 'index, follow, max-image-preview:large';
+
+  return {
+    name: 'kasikpayi-seo',
+    configResolved(config) {
+      if (config.command === 'serve' || process.env.KASIKPAYI_NOINDEX === '1') {
+        robots = 'noindex, follow';
+      }
+    },
+    transformIndexHtml: {
+      order: 'pre',
+      handler(html, { filename }) {
+        const path = Object.keys(pages).find(path =>
+          filename === htmlInputs[path === '/' ? 'home' : path.slice(1, -1)]);
+        if (!path) return html;
+
+        const page = pages[path];
+        const hero = heroImage(path, page);
+        const photo = `<img src="${hero.src}" srcset="${hero.srcset}" sizes="${hero.sizes}" width="${page.image.width}" height="${page.image.height}" alt="${escapeHtml(page.image.alt)}" fetchpriority="high">`;
+        html = html.replace('<!-- page-head -->', () => pageHead(path, page, robots));
+        if (page.type === 'article' || page.type === 'collection') {
+          const { start, end } = blogMarkup(path, page, photo, html);
+          html = html.replace('<!-- blog-start -->', () => start);
+          html = html.replace('<!-- blog-end -->', () => end);
+        }
+        if (page.serviceType) {
+          html = html.replace('<!-- service-guides -->', () => serviceGuides(path));
+        }
+        if (page.type === 'menu') {
+          const total = 8 * menus[0].price + 4 * menus[2].price;
+          html = html.replace('<!-- menu-comparison -->', () => menuComparison());
+          html = html.replace('<!-- menu-example-total -->', () => total.toLocaleString('tr-TR'));
+        }
+        html = html.replace('<!-- service-hero-image -->', () => photo);
+        if (path === '/') {
+          html = html.replace('<!-- daily-menu -->', () => menuMarkup);
+          // Framer marks several presentational images with a valueless `alt`.
+          // Give decorative images an explicit empty alt and describe the real food photos.
+          html = html.replaceAll(' alt style=', ' alt="" style=');
+          const imageAlts = new Map([
+            ['/media/kasik-payi-hero.webp', 'Kaşık Payı mutfağında sıcak yemek hazırlayan aşçı'],
+            ['/media/kp-hikaye-tabak.webp', 'Izgara tavuk, bulgur pilavı ve Antep ezmesiyle hazırlanmış menü tabağı'],
+            ['/media/kp-neden-mutfak-1740.webp', 'Mutfağımızda ızgara tavuk, pilav ve Antep ezmesi servise hazırlanıyor'],
+            ['/media/kp-serit-corba-1536.webp', 'Bir kâse mercimek çorbası'],
+            ['/media/kp-siparis-mutfak-2624.webp', 'Kaşık Payı mutfağında sıcak yemekler servis tezgâhında hazırlanıyor'],
+            ['/media/kp-hizmet-sofra-1292.webp', 'Davet sofrasında ızgara tavuk, bulgur pilavı, salata ve mezeler'],
+          ]);
+          for (const [src, alt] of imageAlts) {
+            const emptyAlt = `src="${src}" alt="" style=`;
+            const describedAlt = `src="${src}" alt="${escapeHtml(alt)}" style=`;
+            html = html.replaceAll(emptyAlt, describedAlt);
+          }
+          html = html.replaceAll(
+            /sizes="[^"]+" src="\/media\/kasik-payi-hero\.webp"/g,
+            `sizes="${hero.sizes}" srcset="${hero.srcset}" src="${hero.src}" fetchpriority="high"`,
+          );
+        }
+        for (const [name, file] of fragments) {
+          const marker = `<!-- fragment:${name} -->`;
+          if (!html.includes(marker)) continue;
+          const content = readFileSync(file, 'utf8').trim();
+          const markup = path === '/' ? `<div class="kp-static-fragment">${content}</div>` : content;
+          html = html.replace(marker, () => markup);
+        }
+        return html;
+      },
+    },
+    configureServer(server) {
+      server.watcher.add(fragments.map(([, file]) => fileURLToPath(file)));
+      server.watcher.on('change', (file) => {
+        if (fragments.some(([, fragment]) => file === fileURLToPath(fragment))) {
+          server.ws.send({ type: 'full-reload' });
+        }
+      });
+
+      server.middlewares.use((request, response, next) => {
+        const { pathname } = new URL(request.url, origin);
+        const runtimeAsset = Object.hasOwn(homeAssets, pathname) && homeAssets[pathname];
+        const asset = Object.hasOwn(crawlFiles, pathname) && crawlFiles[pathname];
+        if ((!asset && !runtimeAsset) || !['GET', 'HEAD'].includes(request.method)) return next();
+        response.setHeader('Content-Type', runtimeAsset ? 'text/javascript; charset=utf-8' : asset.type);
+        response.end(request.method === 'HEAD' ? undefined : runtimeAsset ? runtimeAsset(robots) : asset.body);
+      });
+    },
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: '_redirects', source: permanentRedirects });
+      for (const [path, source] of Object.entries(homeAssets)) {
+        this.emitFile({ type: 'asset', fileName: path.slice(1), source: source(robots) });
+      }
+      for (const [path, { body }] of Object.entries(crawlFiles)) {
+        this.emitFile({ type: 'asset', fileName: path.slice(1), source: body });
+      }
+    },
+  };
+}

@@ -1,0 +1,204 @@
+@import "./brand.css";
+
+@font-face {
+  font-family: "Geist";
+  src: url("/media/gyBhhwUxId8gMGYQMKR3pzfaWI_RnOM4mJPby1QNtA.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Geist";
+  src: url("/media/gyBhhwUxId8gMGYQMKR3pzfaWI_Re-Q4mJPby1QNtA.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Mouse Memoirs";
+  src: url("/media/t5tmIRoSNJ-PH0WNNgDYxdSb7TzFrpOHYh4.woff2") format("woff2");
+  font-display: swap;
+}
+
+.kp-service {
+  margin: 0;
+  background: #fff0e0;
+  color: #492d17;
+  font: 400 17px/1.6 "Geist", system-ui, sans-serif;
+}
+
+.kp-service *,
+.kp-service *::before,
+.kp-service *::after {
+  box-sizing: border-box;
+}
+
+.kp-service a {
+  color: inherit;
+  text-underline-offset: .2em;
+}
+
+.kp-service a:focus-visible,
+.kp-service summary:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+.kp-skip {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 5;
+  padding: 10px 14px;
+  background: #fff0e0;
+  transform: translateY(-180%);
+}
+
+.kp-skip:focus { transform: none; }
+
+.kp-service-shell {
+  width: min(100% - clamp(32px, 8vw, 96px), 1160px);
+  margin-inline: auto;
+}
+
+.kp-service-header {
+  background: #492d17;
+  color: #fff0e0;
+}
+
+.kp-service-header .kp-service-shell,
+.kp-service-header nav,
+.kp-breadcrumb ol,
+.kp-service-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.kp-service-header .kp-service-shell {
+  min-height: 84px;
+  justify-content: space-between;
+  gap: 6px 24px;
+  padding-block: 10px;
+}
+
+.kp-service-header img {
+  display: block;
+  width: clamp(136px, 17vw, 186px);
+  height: auto;
+}
+
+.kp-service-header nav {
+  gap: 2px clamp(14px, 3vw, 34px);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.kp-service-header nav a {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  text-decoration: none;
+}
+
+.kp-service-header nav a:hover { text-decoration: underline; }
+
+.kp-breadcrumb ol {
+  gap: 6px 10px;
+  margin: 0;
+  padding: 18px 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.kp-breadcrumb li + li::before {
+  content: "/";
+  margin-right: 10px;
+  color: #87664d;
+}
+
+.kp-service-hero {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  align-items: center;
+  gap: clamp(22px, 5vw, 68px);
+  padding: clamp(20px, 4vw, 48px);
+  border-radius: 24px;
+  background: #f6e3cd;
+}
+
+.kp-service-hero h1,
+.kp-service-flow h2 {
+  margin: 0;
+  color: #1d573f;
+  font: 400 clamp(44px, 6.2vw, 84px)/.96 "Mouse Memoirs", system-ui, sans-serif;
+  text-wrap: balance;
+}
+
+.kp-service-hero p { max-width: 50ch; }
+
+.kp-service-hero img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
+}
+
+.kp-service-actions { gap: 12px 22px; }
+
+.kp-service-actions .kp-guide-button {
+  background: #1d573f;
+  color: #fff0e0;
+  text-decoration: none;
+}
+
+.kp-service-actions .kp-guide-button:hover { background: #16432f; }
+
+.kp-service-flow {
+  max-width: 74ch;
+  margin: 0 auto;
+  padding: clamp(35px, 7vw, 80px) 0;
+}
+
+.kp-service-flow section + section {
+  margin-top: clamp(30px, 6vw, 64px);
+  padding-top: clamp(30px, 6vw, 64px);
+  border-top: 1px solid #492d1738;
+}
+
+.kp-service-flow h2 {
+  font-size: clamp(34px, 4.6vw, 55px);
+}
+
+.kp-service-flow a { font-weight: 700; }
+
+.kp-service-flow li + li { margin-top: 8px; }
+
+.kp-service-options {
+  display: grid;
+  gap: 18px;
+  margin: 20px 0 0;
+}
+
+.kp-service-options dt { font-weight: 700; }
+.kp-service-options dd { margin: 4px 0 0; }
+
+.kp-service-faq details {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: 1px solid #492d1738;
+  border-radius: 10px;
+}
+
+.kp-service-faq summary {
+  min-height: 32px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.kp-service-faq details p { margin: 8px 0 4px; }
+
+@media (max-width: 700px) {
+  .kp-service-hero { grid-template-columns: minmax(0, 1fr); }
+  .kp-service-hero img { max-height: 370px; object-fit: cover; }
+}
