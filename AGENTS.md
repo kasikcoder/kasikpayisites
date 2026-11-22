@@ -1,5 +1,9 @@
 # Prototype Instructions
 
+## GitHub publishing preference
+
+When the user asks for a site change, make the requested change in this repository. Do not publish it automatically. When the user explicitly says to push/publish the site to GitHub (for example, “GitHub’a pushla”), stage and commit the intended site changes and push them to the configured GitHub remote. If the remote is missing or inaccessible, diagnose the repository URL/authentication and guide the user through the specific fix. Never include secrets or `.env` values in commits.
+
 Run the local server yourself and open the preview in the browser available to this environment. Do not give the user server-start instructions when you can run it.
 
 Before making substantial visual changes, use the Product Design plugin's `get-context` skill when the visual source is unclear or no longer matches the current goal. When the user gives durable prototype-specific design feedback, preferences, or decisions, record them in `AGENTS.md`.
