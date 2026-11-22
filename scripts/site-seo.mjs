@@ -14,11 +14,12 @@ function heroImage(path, page) {
   const src = new URL(page.image.url).pathname;
   const small = src.replace(/(?:-1024)?\.webp$/, '-512.webp');
   const sizes = path === '/'
-    ? '(max-width: 809.98px) calc(100vw - 40px), (max-width: 1199.98px) 550px, 598px'
+    ? '(max-width: 809.98px) calc(100vw - 40px), min(39vw, 530px)'
     : page.type === 'article'
       ? '(max-width: 700px) 92vw, 73ch'
       : '(max-width: 700px) 84vw, (max-width: 1250px) 36vw, 480px';
-  return { src, sizes, srcset: `${small} 512w, ${src} ${page.image.width}w` };
+  const medium = path === '/' ? ', /media/kasik-payi-hero-768.webp 768w' : '';
+  return { src, sizes, srcset: `${small} 512w${medium}, ${src} ${page.image.width}w` };
 }
 
 function menuComparison() {
@@ -93,10 +94,15 @@ const crawlFiles = {
 };
 
 // Cloudflare static assets can serve HTML before the Sites Worker is invoked.
-const permanentRedirects = Object.keys(pages).filter(path => path !== '/').flatMap(path => [
-  `${path.slice(0, -1)} ${path} 301`,
-  `${path}index.html ${path} 301`,
-]).join('\n') + '\n';
+const permanentRedirects = [
+  '/index.html / 301',
+  '/sitemap_index.xml /sitemap.xml 301',
+  '/page-sitemap.xml /sitemap.xml 301',
+  ...Object.keys(pages).filter(path => path !== '/').flatMap(path => [
+    `${path.slice(0, -1)} ${path} 301`,
+    `${path}index.html ${path} 301`,
+  ]),
+].join('\n') + '\n';
 
 const homeFragments = ['catering', 'service-areas', 'ordering-guide', 'order', 'footer'];
 const fragmentFiles = [...homeFragments, 'service-nav'];
@@ -115,6 +121,7 @@ const homeAssets = {
       favicon: '/media/kasik-payi-favicon.png',
       robots,
       socialImage: pages['/'].image.url,
+      hero: heroImage('/', pages['/']),
     }) + ';\n',
 };
 
@@ -154,8 +161,12 @@ export function siteSeo() {
         }
         if (page.type === 'menu') {
           const total = 8 * menus[0].price + 4 * menus[2].price;
+          const prices = menus.map(menu => menu.price);
+          const low = Math.min(...prices).toLocaleString('tr-TR');
+          const high = Math.max(...prices).toLocaleString('tr-TR');
           html = html.replace('<!-- menu-comparison -->', () => menuComparison());
           html = html.replace('<!-- menu-example-total -->', () => total.toLocaleString('tr-TR'));
+          html = html.replace('<!-- menu-price-range -->', () => low === high ? low : `${low}–${high}`);
         }
         html = html.replace('<!-- service-hero-image -->', () => photo);
         if (path === '/') {

@@ -21,6 +21,25 @@ a[data-framer-name="Logo"] h2[data-styles-preset="chMh5xQZK"] {
     width: 139px;
     height: 34px;
   }
+
+  .framer-v-vzxlte .framer-1nkid7x {
+    visibility: hidden;
+  }
+
+  .framer-xevfum-container input[type="checkbox"] {
+    display: block !important;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    clip-path: inset(50%);
+  }
+
+  .framer-xevfum-container input:focus-visible + svg {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+    color: #fff0e0;
+  }
 }
 
 /* Kaşık Payı artwork in the original animated hero slots. */
@@ -56,6 +75,22 @@ a[data-framer-name="Logo"] h2[data-styles-preset="chMh5xQZK"] {
   max-width: 540px;
 }
 
+/* Keep the hero copy, action and LCP image visible on the first paint. */
+.framer-TvFR4 :is(.framer-1ib38fw, .framer-15gdh4t, .framer-137g5el, .framer-1xdvmzi, .framer-1x63loo) {
+  opacity: 1 !important;
+  transform: none !important;
+  will-change: auto !important;
+}
+
+.framer-TvFR4 .framer-168rkhr-container .framer-13256wx .framer-text {
+  --framer-text-color: #fff0e0 !important;
+}
+
+.framer-TvFR4 .framer-168rkhr-container a:focus-visible {
+  outline: 2px solid #1d573f;
+  outline-offset: 4px;
+}
+
 .framer-TvFR4 .framer-t80b8r-container {
   top: -10px;
   right: -95px;
@@ -67,8 +102,11 @@ a[data-framer-name="Logo"] h2[data-styles-preset="chMh5xQZK"] {
     inset: 4px auto auto 50%;
     width: min(39vw, 530px);
     height: auto;
+    transform: translateX(-50%) !important;
   }
+}
 
+@media (810px <= width < 1200px) {
   .framer-TvFR4 .framer-1x63loo {
     padding-right: 42px;
   }
@@ -109,12 +147,6 @@ a[data-framer-name="Logo"] h2[data-styles-preset="chMh5xQZK"] {
 
   .framer-TvFR4 .framer-1eor6k .framer-text {
     --framer-font-size: clamp(47px, 15.4vw, 88px) !important;
-  }
-
-  /* Show the complete mobile composition from the first paint. */
-  .framer-TvFR4 :is(.framer-1ib38fw, .framer-15gdh4t, .framer-137g5el, .framer-1xdvmzi, .framer-1x63loo) {
-    opacity: 1 !important;
-    transform: none !important;
   }
 
   .framer-TvFR4 .framer-1qbqcri {
@@ -166,11 +198,6 @@ a[data-framer-name="Logo"] h2[data-styles-preset="chMh5xQZK"] {
     justify-content: center;
     padding: 10px 18px;
     background-color: #1d573f !important;
-  }
-
-  .framer-TvFR4 .framer-168rkhr-container a:focus-visible {
-    outline: 2px solid #1d573f;
-    outline-offset: 4px;
   }
 
   .framer-TvFR4 .framer-1xdvmzi {

@@ -32,7 +32,7 @@ test('built pages expose matching canonical URLs, titles and structured data in 
     assert.match(html, /<meta name="robots" content="index, follow, max-image-preview:large">/);
     assert.equal(html.match(/<h1(?=[\s>])/g)?.length, 1);
     assert.match(html, /href="tel:\+905355053500"/);
-    assert.doesNotMatch(html, /<!-- (?:page-head|daily-menu|fragment:|blog-start|blog-end|service-guides|service-hero-image|menu-comparison|menu-example-total)|deuxbakery\.framer\.website/);
+    assert.doesNotMatch(html, /<!-- (?:page-head|daily-menu|fragment:|blog-start|blog-end|service-guides|service-hero-image|menu-comparison|menu-example-total|menu-price-range)|deuxbakery\.framer\.website/);
 
     const schema = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
     const byType = Object.fromEntries(schema['@graph'].map(entity => [entity['@type'], entity]));
@@ -115,6 +115,11 @@ test('menu comparison and quote messages reflect the same menu data as the home 
   }
   const exampleTotal = 8 * menus[0].price + 4 * menus[2].price;
   assert.ok(html.includes(`${exampleTotal.toLocaleString('tr-TR')} TL olur`));
+  const prices = menus.map(menu => menu.price);
+  const low = Math.min(...prices).toLocaleString('tr-TR');
+  const high = Math.max(...prices).toLocaleString('tr-TR');
+  const range = low === high ? low : `${low}–${high}`;
+  assert.ok(html.includes(`kişi başı ${range} TL`));
 });
 
 test('canonical pages and in-page sections resolve from internal HTML links', async () => {
@@ -147,11 +152,15 @@ test('static host permanently redirects HTML aliases to the corresponding sitema
   const aliases = new Map(rules.map(rule => {
     const [alias, destination, status] = rule.split(' ');
     assert.equal(status, '301');
-    assert.ok(Object.hasOwn(pages, destination));
+    assert.ok(Object.hasOwn(pages, destination) || destination === '/sitemap.xml');
     assert.ok(!Object.hasOwn(pages, alias));
     return [alias, destination];
   }));
   assert.equal(aliases.size, rules.length);
+  assert.equal(aliases.get('/index.html'), '/');
+  assert.equal(aliases.get('/sitemap_index.xml'), '/sitemap.xml');
+  assert.equal(aliases.get('/page-sitemap.xml'), '/sitemap.xml');
+  await access(new URL('sitemap.xml', build));
   for (const path of Object.keys(pages)) {
     if (path === '/') continue;
     assert.equal(aliases.get(path + 'index.html'), path);

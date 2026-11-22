@@ -9,7 +9,7 @@ export const menuMarkup = `<h2 id="gunluk-menu-baslik">GÜNLÜK MENÜ</h2>
 <p class="kp-menu-intro">Örnek menüler ve kişi başı fiyatlar. Sipariş günündeki seçenekleri ve fiyatı teklif sırasında teyit edebilirsiniz.</p>
 <div class="kp-menu-grid">${menus.map(({price, dishes}, index) => `
   <article class="kp-menu-card">
-    <div class="kp-menu-art" aria-hidden="true"><span><img src="/media/kasik-payi-menu-photos.webp" alt="" width="1254" height="1254" loading="lazy" decoding="async"></span></div>
+    <div class="kp-menu-art" aria-hidden="true"><span><img src="/media/kasik-payi-menu-photos.webp" srcset="/media/kasik-payi-menu-photos-640.webp 640w, /media/kasik-payi-menu-photos-960.webp 960w, /media/kasik-payi-menu-photos.webp 1254w" sizes="(max-width: 620px) calc(100vw - 40px - clamp(14px, 6vw, 88px)), 532px" alt="" width="1254" height="1254" loading="lazy" decoding="async"></span></div>
     <header><h3>Menü ${index + 1}</h3><span>${price} TL</span></header>
     <ul>${dishes.map(dish => `<li>${dish}</li>`).join('')}</ul>
   </article>`).join('')}
