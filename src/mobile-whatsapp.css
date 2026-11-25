@@ -1,0 +1,27 @@
+.kp-mobile-whatsapp {
+  display: none;
+}
+
+@media (width < 810px) {
+  .kp-mobile-whatsapp {
+    position: fixed;
+    right: calc(16px + env(safe-area-inset-right));
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    z-index: 10;
+    display: grid;
+    width: 54px;
+    height: 54px;
+    box-sizing: border-box;
+    place-items: center;
+    border: 2px solid #fff1df;
+    border-radius: 50%;
+    background: #1b533e;
+    color: #fff1df;
+    box-shadow: 0 3px 12px #482d2060;
+  }
+
+  .kp-mobile-whatsapp:focus-visible {
+    outline: 2px solid #1b533e;
+    outline-offset: 2px;
+  }
+}

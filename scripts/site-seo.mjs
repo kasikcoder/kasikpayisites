@@ -147,6 +147,15 @@ export function siteSeo() {
           filename === htmlInputs[path === '/' ? 'home' : path.slice(1, -1)]);
         if (!path) return html;
 
+        html = html.replace('</head>', '<link rel="stylesheet" href="/src/mobile-whatsapp.css"></head>');
+        html = html.replace('</body>', () => `
+          <a class="kp-mobile-whatsapp" href="${whatsapp}" aria-label="WhatsApp’tan yaz">
+            <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" aria-hidden="true">
+              <path d="M12 2a10 10 0 0 0-8.66 15L2 22l5.13-1.35A10 10 0 1 0 12 2Zm0 18.25a8.23 8.23 0 0 1-4.2-1.15l-.31-.19-2.98.78.8-2.9-.21-.33a8.25 8.25 0 1 1 6.9 3.79Zm4.53-6.17c-.25-.13-1.49-.74-1.72-.82-.23-.09-.4-.13-.57.13-.17.25-.66.82-.8.99-.15.17-.3.19-.55.06-.25-.13-1.07-.39-2.04-1.25-.75-.67-1.26-1.5-1.41-1.75-.15-.25-.02-.39.11-.52.11-.11.25-.3.38-.44.13-.15.17-.26.25-.43.09-.17.04-.32-.02-.44-.06-.13-.57-1.38-.78-1.88-.2-.5-.41-.43-.57-.44h-.48c-.17 0-.44.06-.68.32-.23.25-.89.87-.89 2.12s.91 2.46 1.04 2.63c.13.17 1.79 2.74 4.33 3.84.61.26 1.08.42 1.45.53.61.2 1.16.17 1.6.1.49-.07 1.5-.61 1.71-1.21.21-.59.21-1.1.15-1.21-.06-.1-.23-.17-.49-.29Z"/>
+            </svg>
+          </a>
+        </body>`);
+
         const page = pages[path];
         const hero = heroImage(path, page);
         const photo = `<img src="${hero.src}" srcset="${hero.srcset}" sizes="${hero.sizes}" width="${page.image.width}" height="${page.image.height}" alt="${escapeHtml(page.image.alt)}" fetchpriority="high">`;
