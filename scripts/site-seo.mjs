@@ -4,6 +4,17 @@ import { brand, origin, pages, structuredData, whatsapp } from '../src/seo.mjs';
 import { blogMarkup, serviceGuides } from './blog-markup.mjs';
 import { menuMarkup, menus } from '../public/runtime/kasik-payi-menu.mjs';
 
+const googleAdsTagId = 'AW-18595176341';
+const googleAdsTag = `<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=${googleAdsTagId}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '${googleAdsTagId}');
+</script>
+<!-- End Google tag (gtag.js) -->`;
+
 const escapeHtml = (value) => String(value)
   .replaceAll('&', '&amp;')
   .replaceAll('<', '&lt;')
@@ -160,6 +171,9 @@ export function siteSeo() {
         const hero = heroImage(path, page);
         const photo = `<img src="${hero.src}" srcset="${hero.srcset}" sizes="${hero.sizes}" width="${page.image.width}" height="${page.image.height}" alt="${escapeHtml(page.image.alt)}" fetchpriority="high">`;
         html = html.replace('<!-- page-head -->', () => pageHead(path, page, robots));
+        if (robots === 'index, follow, max-image-preview:large') {
+          html = html.replace('</head>', `${googleAdsTag}\n</head>`);
+        }
         if (page.type === 'article' || page.type === 'collection') {
           const { start, end } = blogMarkup(path, page, photo, html);
           html = html.replace('<!-- blog-start -->', () => start);
