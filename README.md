@@ -28,6 +28,6 @@ Derleme çıktısı `dist/client` altında bulunur. Canonical adresler, sosyal p
 
 Bu Vite uygulamasını yayınlamak için `dist/client` içeriğini kullanın. Canonical yayın adresi `src/seo.mjs` dosyasında tanımlanır. Rehberlerin başlık ve görsel bilgileri `src/blog.mjs` içinde, tam yazıları `blog/<yazı-adresi>/index.html` dosyalarındadır.
 
-Herkese açık bir test ortamı için `KASIKPAYI_NOINDEX=1 npm run build` bütün HTML sayfalarını ve ana sayfanın çalıştırma verisini `noindex, follow` ile hazırlar. Canlı yayın için normal `npm run build` kullanılır. Derlemeyle üretilen `dist/client/_redirects`, Cloudflare’ın statik varlık katmanında alt sayfaların eğik çizgisiz ve `index.html` adreslerini kalıcı olarak canonical URL’lerine yönlendirir.
+Herkese açık bir test ortamı için `KASIKPAYI_NOINDEX=1 npm run build` bütün HTML sayfalarını ve ana sayfanın çalıştırma verisini `noindex, follow` ile hazırlar. Vercel önizleme derlemeleri de `noindex, follow` kullanır. Canlı yayın için normal `npm run build` kullanılır. Canlı Vercel alan adı `https://www.kasikpayi.com` ve `vercel.json` eski HTML ve site haritası adreslerini kalıcı olarak yönlendirir. Derlemeyle üretilen `dist/client/_redirects`, Cloudflare’ın statik varlık katmanında alt sayfaların eğik çizgisiz ve `index.html` adreslerini kalıcı olarak canonical URL’lerine yönlendirir.
 
 Sorgu araştırması, rehber haritası, Google ve OpenAI kaynakları, yayın sonrası kontroller ve performans ölçümü [SEO ve GEO araştırmasında](SEO-GEO-PLAYBOOK.md) yer alıyor.

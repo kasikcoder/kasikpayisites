@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "trailingSlash": true,
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/:page(menu|hakkimizda|ofis-yemegi|etkinlik-catering|taksim-beyoglu-catering|blog)/index.html", "destination": "/:page/", "permanent": true },
+    { "source": "/blog/:slug/index.html", "destination": "/blog/:slug/", "permanent": true },
+    { "source": "/:file(sitemap_index|page-sitemap).xml", "destination": "/sitemap.xml", "permanent": true }
+  ]
+}

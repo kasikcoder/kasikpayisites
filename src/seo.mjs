@@ -1,7 +1,7 @@
 import { blogPath, blogOverview, blogPosts, blogTopics } from './blog.mjs';
 import { menus } from '../public/runtime/kasik-payi-menu.mjs';
 
-export const origin = 'https://kasikpayi.com';
+export const origin = 'https://www.kasikpayi.com';
 export const brand = 'Kaşık Payı';
 export const instagram = 'https://www.instagram.com/kasikpayicatering/';
 export const phone = '+905355053500';

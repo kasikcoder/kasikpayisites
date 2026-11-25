@@ -136,7 +136,7 @@ export function siteSeo() {
   return {
     name: 'kasikpayi-seo',
     configResolved(config) {
-      if (config.command === 'serve' || process.env.KASIKPAYI_NOINDEX === '1') {
+      if (config.command === 'serve' || process.env.VERCEL_ENV === 'preview' || process.env.KASIKPAYI_NOINDEX === '1') {
         robots = 'noindex, follow';
       }
     },

@@ -140,6 +140,7 @@ test('canonical pages and in-page sections resolve from internal HTML links', as
 });
 
 test('sitemap lists all canonical pages and robots allows search discovery', async () => {
+  assert.equal(origin, 'https://www.kasikpayi.com');
   const [sitemap, robots] = await Promise.all([read('sitemap.xml'), read('robots.txt')]);
   const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, url]) => url);
   assert.deepEqual(urls, Object.keys(pages).map(path => origin + path));
