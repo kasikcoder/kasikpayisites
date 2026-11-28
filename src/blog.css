@@ -23,7 +23,57 @@
 }
 
 .kp-blog-index {
-  padding-block: clamp(36px, 6vw, 82px);
+  padding-block: clamp(28px, 5vw, 68px);
+}
+
+.kp-blog-featured {
+  margin-top: clamp(24px, 4vw, 44px);
+  padding: clamp(18px, 3.5vw, 32px);
+  border-radius: 20px;
+  background: #f6e3cd;
+}
+
+.kp-blog-featured h2 {
+  margin: 0 0 16px;
+  color: #1d573f;
+  font: 400 clamp(30px, 4.5vw, 46px)/1.04 "Mouse Memoirs", system-ui, sans-serif;
+}
+
+.kp-blog-featured ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kp-blog-featured a {
+  display: grid;
+  gap: 6px;
+  height: 100%;
+  padding: 14px 16px;
+  border: 1px solid #492d1738;
+  border-radius: 14px;
+  background: #fff7ee;
+  text-decoration: none;
+}
+
+.kp-blog-featured a:hover {
+  border-color: #1d573f;
+  background: #fff0e0;
+}
+
+.kp-blog-featured strong {
+  color: #1d573f;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.kp-blog-featured span {
+  font-size: .88rem;
+  line-height: 1.45;
+  color: #492d17;
 }
 
 .kp-blog-topic {
@@ -33,6 +83,11 @@
   padding-block: 26px;
   border-bottom: 1px solid #492d1738;
   scroll-margin-block-start: 20px;
+}
+
+.kp-blog-topic:not(:first-child) {
+  content-visibility: auto;
+  contain-intrinsic-block-size: auto 70rem;
 }
 
 .kp-blog-topic:last-child { border-bottom: 0; }
@@ -95,8 +150,40 @@
   font-size: .9rem;
 }
 
-.kp-blog-meta time {
+.kp-blog-meta time,
+.kp-blog-reading {
   color: #6f4c30;
+}
+
+.kp-toc {
+  margin-top: 24px;
+  padding: 16px 20px;
+  border: 1px solid #492d1738;
+  border-radius: 14px;
+  background: #f6e3cd80;
+  font-size: .95rem;
+}
+
+.kp-toc strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #1d573f;
+  font-size: .92rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.kp-toc ol {
+  margin: 0;
+  padding-inline-start: 1.3rem;
+}
+
+.kp-toc li + li {
+  margin-top: 5px;
+}
+
+.kp-blog-article h2[id] {
+  scroll-margin-block-start: 24px;
 }
 
 .kp-blog-author,
@@ -264,8 +351,16 @@
 .kp-blog-links { margin-bottom: 0; }
 .kp-blog-links li + li { margin-top: 8px; }
 
+@media (max-width: 900px) {
+  .kp-blog-featured ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (max-width: 750px) {
   .kp-blog-topic { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .kp-blog-featured ul { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 490px) {

@@ -28,6 +28,9 @@ test('built pages expose matching canonical URLs, titles and structured data in 
       [...html.matchAll(/<link rel="canonical" href="([^"]+)"/g)].map(([, href]) => href),
       [canonical],
     );
+    assert.ok(html.includes(`<link rel="alternate" hreflang="tr" href="${canonical}">`), path + ' exposes hreflang tr');
+    assert.ok(html.includes(`<link rel="alternate" hreflang="x-default" href="${canonical}">`), path + ' exposes hreflang x-default');
+    assert.ok(html.includes(`<link rel="alternate" type="application/rss+xml"`), path + ' links RSS feed');
     assert.equal(html.match(/<meta property="og:url" content="([^"]+)"/)?.[1], canonical);
     assert.match(html, /<meta name="robots" content="index, follow, max-image-preview:large">/);
     assert.equal(html.match(/<h1(?=[\s>])/g)?.length, 1);
@@ -37,6 +40,8 @@ test('built pages expose matching canonical URLs, titles and structured data in 
     const schema = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
     const byType = Object.fromEntries(schema['@graph'].map(entity => [entity['@type'], entity]));
     assert.equal(byType.FoodEstablishment['@id'], origin + '/#isletme');
+    assert.equal(byType.FoodEstablishment.address.postalCode, '34435');
+    assert.ok(byType.FoodEstablishment.priceRange);
     const webpage = byType.WebPage ?? byType.CollectionPage ?? byType.AboutPage;
     assert.equal(webpage.url, canonical);
     assert.equal(webpage.description, page.description);
@@ -67,6 +72,7 @@ test('built pages expose matching canonical URLs, titles and structured data in 
       assert.match(html, /id="gunluk-menu"[\s\S]*Izgara Tavuk/);
       assert.match(html, /id="teslimat-bolgeleri"/);
       assert.match(html, /id="sik-sorulan-sorular"/);
+      assert.ok(byType.FAQPage?.mainEntity.length >= 5, 'home page exposes FAQPage schema');
       assert.match(html, /href="\/#menu-olustur"/);
       assert.match(html, /id="menu-olustur"/);
       assert.doesNotMatch(html, /href="https:\/\/kasikpayi\.com\/#menu-olustur"/);
@@ -81,6 +87,7 @@ test('built pages expose matching canonical URLs, titles and structured data in 
       assert.equal(service.url, canonical);
       assert.equal(service.provider['@id'], byType.FoodEstablishment['@id']);
       assert.equal(byType.BreadcrumbList.itemListElement.at(-1).item, canonical);
+      assert.ok(byType.FAQPage?.mainEntity.length >= 3, path + ' exposes FAQPage schema');
     }
 
     for (const internalPath of [...servicePaths, blogPath, menuPath, aboutPath]) {
@@ -98,6 +105,10 @@ test('menu comparison and quote messages reflect the same menu data as the home 
   assert.equal(schema.find(entity => entity['@type'] === 'FoodEstablishment').hasMenu, menu.url);
   assert.deepEqual(menu.hasMenuSection.map(section => section.hasMenuItem.map(item => item.name)),
     menus.map(({ dishes }) => dishes));
+  assert.deepEqual(menu.hasMenuSection.map(section => section.offers?.price), menus.map(({ price }) => price));
+  assert.ok(menu.hasMenuSection.every(section => section.offers?.priceCurrency === 'TRY'));
+  const faq = schema.find(entity => entity['@type'] === 'FAQPage');
+  assert.ok(faq?.mainEntity.length >= 3, '/menu/ exposes FAQPage schema');
   const rows = [...html.matchAll(/<tr>\s*<th scope="row">Menü \d+<\/th>([\s\S]*?)<\/tr>/g)];
   assert.equal(rows.length, menus.length);
   const homeMenu = home.split('id="gunluk-menu"')[1].split('</section>')[0];
@@ -139,9 +150,14 @@ test('canonical pages and in-page sections resolve from internal HTML links', as
   }
 });
 
-test('sitemap lists all canonical pages, robots allows AI search bots and llms.txt summarizes the site', async () => {
+test('sitemap lists all canonical pages, robots allows AI search bots, llms.txt and RSS feed stay in sync', async () => {
   assert.equal(origin, 'https://www.kasikpayi.com');
-  const [sitemap, robots, llms] = await Promise.all([read('sitemap.xml'), read('robots.txt'), read('llms.txt')]);
+  const [sitemap, robots, llms, feed] = await Promise.all([
+    read('sitemap.xml'),
+    read('robots.txt'),
+    read('llms.txt'),
+    read('feed.xml'),
+  ]);
   const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, url]) => url);
   assert.deepEqual(urls, Object.keys(pages).map(path => origin + path));
   for (const bot of ['OAI-SearchBot', 'ChatGPT-User', 'PerplexityBot', 'Claude-SearchBot', 'Google-Extended']) {
@@ -150,8 +166,10 @@ test('sitemap lists all canonical pages, robots allows AI search bots and llms.t
   assert.ok(robots.includes(`Sitemap: ${origin}/sitemap.xml`));
   assert.ok(llms.includes('# Kaşık Payı'));
   assert.ok(llms.includes('Şehit Muhtar Mah. Zambak Sk. No: 8, Beyoğlu / İstanbul'));
+  assert.match(feed, /<rss version="2\.0"/);
   for (const post of blogPosts) {
     assert.ok(llms.includes(origin + post.path), 'llms.txt lists ' + post.path);
+    assert.ok(feed.includes(`<link>${origin + post.path}</link>`), 'feed.xml lists ' + post.path);
   }
 });
 
@@ -204,17 +222,24 @@ test('blog guides are linked from their service and hub and have crawlable artic
       origin + '/', origin + blogPath, origin + post.path,
     ]);
     assert.match(html, /<meta property="og:type" content="article">/);
-    assert.match(html, /<article class="kp-blog-article"[^>]*>[\s\S]*<h2>[\s\S]*<\/article>/);
+    assert.match(html, /<meta property="article:section"/);
+    assert.match(html, /<article class="kp-blog-article"[^>]*>[\s\S]*<h2\b[^>]*>[\s\S]*<\/article>/);
     assert.doesNotMatch(html, /<script[^>]+src="(?!https:\/\/www\.googletagmanager\.com\/gtag\/js\?)/);
+    assert.ok(article.wordCount > 100, post.path + ' exposes BlogPosting.wordCount');
+    assert.ok(html.includes('<nav class="kp-toc"'), post.path + ' renders Table of Contents');
+    if (html.includes('<table')) {
+      assert.ok(html.includes('class="kp-table-wrap"'), post.path + ' wraps tables for responsive scrolling');
+    }
     assert.ok(hub.includes(`href="${post.path}"`));
     assert.ok(serviceHtml[post.topic].includes(`href="${post.path}"`));
     const quoteLink = new URL(html.match(/href="(https:\/\/wa\.me\/\d+\?text=[^"]+)"/)[1]);
     assert.ok(quoteLink.searchParams.get('text').includes(post.label));
     if (post.introduction) assert.ok(html.includes(`<p>${post.introduction}</p>`));
-    if (post.publishedAt) {
-      assert.equal(article.datePublished, post.publishedAt);
-      assert.equal(article.dateModified, post.updatedAt ?? post.publishedAt);
-      assert.ok(html.includes(`<time datetime="${post.publishedAt}">`), post.path + ' shows matching visible date');
+    const expectedDate = post.updatedAt ?? post.publishedAt;
+    if (expectedDate) {
+      assert.equal(article.dateModified, expectedDate);
+      if (post.publishedAt) assert.equal(article.datePublished, post.publishedAt);
+      assert.ok(html.includes(`<time datetime="${expectedDate}">`), post.path + ' shows matching visible date');
     }
     if (post.faqs?.length) {
       const faqSchema = graph.find(entity => entity['@type'] === 'FAQPage');

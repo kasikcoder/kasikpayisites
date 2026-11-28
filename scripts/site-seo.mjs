@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { aboutPath, brand, instagram, menuPath, origin, pages, phone, structuredData, whatsapp } from '../src/seo.mjs';
 import { blogPath, blogPosts, blogTopics } from '../src/blog.mjs';
-import { blogMarkup, serviceGuides } from './blog-markup.mjs';
+import { blogMarkup, enhanceArticleBody, serviceGuides } from './blog-markup.mjs';
 import { menuMarkup, menus } from '../public/runtime/kasik-payi-menu.mjs';
 
 const googleAdsTagId = 'AW-18595176341';
@@ -49,7 +49,19 @@ function menuComparison() {
   }).join('\n');
 }
 
-function pageHead(path, page, robots) {
+function extractVisibleFaqs(html) {
+  const faqBlock = html.match(/<section[^>]*class="[^"]*(?:kp-faq|kp-service-faq|kp-blog-faq)[^"]*"[^>]*>[\s\S]*?<\/section>/);
+  if (!faqBlock) return [];
+  return Array.from(
+    faqBlock[0].matchAll(/<details\b[^>]*>\s*<summary>([\s\S]*?)<\/summary>\s*<p>([\s\S]*?)<\/p>\s*<\/details>/g),
+    ([, q, a]) => ({
+      q: q.replace(/<[^>]+>/g, '').trim(),
+      a: a.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(),
+    }),
+  );
+}
+
+function pageHead(path, page, robots, extra = {}) {
   const url = origin + path;
   const tag = (kind, name, content) => `<meta ${kind}="${name}" content="${escapeHtml(content)}">`;
   const openGraph = {
@@ -64,6 +76,14 @@ function pageHead(path, page, robots) {
     'image:height': page.image.height,
     'image:alt': page.image.alt,
   };
+  const articleMeta = page.type === 'article'
+    ? [
+      tag('property', 'article:section', blogTopics.find(topic => topic.id === page.topic).title),
+      tag('property', 'article:author', origin + aboutPath),
+      ...(page.publishedAt ? [tag('property', 'article:published_time', `${page.publishedAt}T09:00:00+03:00`)] : []),
+      ...((page.updatedAt ?? page.publishedAt) ? [tag('property', 'article:modified_time', `${page.updatedAt ?? page.publishedAt}T09:00:00+03:00`)] : []),
+    ]
+    : [];
   const twitter = {
     card: 'summary_large_image',
     title: page.title,
@@ -71,17 +91,25 @@ function pageHead(path, page, robots) {
     image: page.image.url,
     'image:alt': page.image.alt,
   };
-  const json = JSON.stringify(structuredData(path, page)).replaceAll('<', '\\u003c');
+  const json = JSON.stringify(structuredData(path, page, extra)).replaceAll('<', '\\u003c');
   const hero = heroImage(path, page);
+  const fontPreload = path !== '/'
+    ? ['<link rel="preload" href="/media/t5tmIRoSNJ-PH0WNNgDYxdSb7TzFrpOHYh4.woff2" as="font" type="font/woff2" crossorigin>']
+    : [];
 
   return [
     `<title>${escapeHtml(page.title)}</title>`,
     tag('name', 'description', page.description),
     tag('name', 'robots', robots),
     `<link rel="canonical" href="${escapeHtml(url)}">`,
+    `<link rel="alternate" hreflang="tr" href="${escapeHtml(url)}">`,
+    `<link rel="alternate" hreflang="x-default" href="${escapeHtml(url)}">`,
+    `<link rel="alternate" type="application/rss+xml" title="${escapeHtml(brand)} Catering Rehberleri" href="${escapeHtml(origin + '/feed.xml')}">`,
+    ...fontPreload,
     `<link rel="preload" as="image" imagesrcset="${hero.srcset}" imagesizes="${hero.sizes}" fetchpriority="high">`,
     '<link rel="icon" type="image/png" sizes="64x64" href="/media/kasik-payi-favicon.png">',
     ...Object.entries(openGraph).map(([name, content]) => tag('property', `og:${name}`, content)),
+    ...articleMeta,
     ...Object.entries(twitter).map(([name, content]) => tag('name', `twitter:${name}`, content)),
     `<script type="application/ld+json">${json}</script>`,
   ].join('\n    ');
@@ -139,6 +167,42 @@ function buildLlmsTxt() {
   ].join('\n');
 }
 
+function buildFeedXml() {
+  const lastBuild = new Date(`${latestBlogDate ?? '2026-11-28'}T09:00:00+03:00`).toUTCString();
+  const ordered = [...blogPosts].reverse();
+  const items = ordered.map(post => {
+    const link = origin + post.path;
+    const topicTitle = blogTopics.find(topic => topic.id === post.topic).title;
+    const pubDate = new Date(`${post.publishedAt ?? post.updatedAt ?? '2026-11-28'}T09:00:00+03:00`).toUTCString();
+    return [
+      '    <item>',
+      `      <title>${escapeHtml(post.label)}</title>`,
+      `      <link>${escapeHtml(link)}</link>`,
+      `      <guid isPermaLink="true">${escapeHtml(link)}</guid>`,
+      `      <category>${escapeHtml(topicTitle)}</category>`,
+      `      <pubDate>${pubDate}</pubDate>`,
+      `      <description>${escapeHtml(post.introduction ?? post.description)}</description>`,
+      '    </item>',
+    ].join('\n');
+  });
+
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
+    '  <channel>',
+    `    <title>${escapeHtml(brand)} — Ofis Yemeği ve Catering Rehberleri</title>`,
+    `    <link>${escapeHtml(origin + blogPath)}</link>`,
+    `    <atom:link href="${escapeHtml(origin + '/feed.xml')}" rel="self" type="application/rss+xml"/>`,
+    `    <description>${escapeHtml(pages[blogPath].description)}</description>`,
+    '    <language>tr</language>',
+    `    <lastBuildDate>${lastBuild}</lastBuildDate>`,
+    ...items,
+    '  </channel>',
+    '</rss>',
+    '',
+  ].join('\n');
+}
+
 const crawlFiles = {
   '/robots.txt': {
     type: 'text/plain; charset=utf-8',
@@ -174,6 +238,10 @@ const crawlFiles = {
   '/llms.txt': {
     type: 'text/plain; charset=utf-8',
     body: buildLlmsTxt(),
+  },
+  '/feed.xml': {
+    type: 'application/rss+xml; charset=utf-8',
+    body: buildFeedXml(),
   },
   '/sitemap.xml': {
     type: 'application/xml; charset=utf-8',
@@ -257,12 +325,19 @@ export function siteSeo() {
         const page = pages[path];
         const hero = heroImage(path, page);
         const photo = `<img src="${hero.src}" srcset="${hero.srcset}" sizes="${hero.sizes}" width="${page.image.width}" height="${page.image.height}" alt="${escapeHtml(page.image.alt)}" fetchpriority="high">`;
-        html = html.replace('<!-- page-head -->', () => pageHead(path, page, robots));
-        if (robots === 'index, follow, max-image-preview:large') {
-          html = html.replace('</head>', `${googleAdsTag}\n</head>`);
-        }
+        const extra = {};
         if (page.type === 'article' || page.type === 'collection') {
-          const { start, end } = blogMarkup(path, page, photo, html);
+          let articleExtras = {};
+          if (page.type === 'article') {
+            const match = html.match(/<!-- blog-start -->([\s\S]*?)<!-- blog-end -->/);
+            if (match) {
+              const enhanced = enhanceArticleBody(match[1], page.faqs);
+              html = html.replace(match[0], `<!-- blog-start -->${enhanced.body}<!-- blog-end -->`);
+              articleExtras = { toc: enhanced.toc, wordCount: enhanced.wordCount };
+              extra.wordCount = enhanced.wordCount;
+            }
+          }
+          const { start, end } = blogMarkup(path, page, photo, html, articleExtras);
           html = html.replace('<!-- blog-start -->', () => start);
           html = html.replace('<!-- blog-end -->', () => end);
         }
@@ -308,6 +383,12 @@ export function siteSeo() {
           const content = readFileSync(file, 'utf8').trim();
           const markup = path === '/' ? `<div class="kp-static-fragment">${content}</div>` : content;
           html = html.replace(marker, () => markup);
+        }
+        const visibleFaqs = extractVisibleFaqs(html);
+        if (visibleFaqs.length) extra.faqs = visibleFaqs;
+        html = html.replace('<!-- page-head -->', () => pageHead(path, page, robots, extra));
+        if (robots === 'index, follow, max-image-preview:large') {
+          html = html.replace('</head>', `${googleAdsTag}\n</head>`);
         }
         return html;
       },

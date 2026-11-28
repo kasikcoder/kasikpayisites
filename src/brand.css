@@ -521,6 +521,32 @@ a[data-framer-name="Logo"] h2[data-styles-preset="chMh5xQZK"] {
   text-underline-offset: .2em;
 }
 
+.kp-guide-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin: 26px 0 18px;
+}
+
+.kp-guide-pills a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 6px 14px;
+  border: 1px solid #492d1744;
+  border-radius: 999px;
+  background: #f6e3cd;
+  color: #492d17;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.kp-guide-pills a:hover {
+  border-color: #1d573f;
+  color: #1d573f;
+}
+
 .kp-faq {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);

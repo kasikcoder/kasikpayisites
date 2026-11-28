@@ -101,7 +101,7 @@ Kurumsal teklif sayfaları kişi sayısı, menü, teslimat ve faturalama bilgile
 
 ## 28 Kasım 2026 SEO ve GEO genişletme araştırması
 
-Üçüncü dalga araştırmada Türkiye’de 2026 mevzuatı, kurumsal satın alma soruları, yerel semt lojistiği ve yüksek arama niyetli özel gün sorgularını üçüncü taraf resmî kaynaklarla doğrulayarak 12 yeni rehber eklendi (toplam 41 rehber, 48 canonical sayfa).
+Üçüncü dalga araştırmada Türkiye’de 2026 mevzuatı, kurumsal satın alma soruları, yerel semt lojistiği ve yüksek arama niyetli özel gün sorgularını üçüncü taraf resmî kaynaklarla doğrulayarak 13 yeni rehber eklendi (toplam 42 rehber, 49 canonical sayfa) ve önceki 29 rehberin tamamı yanıt-öncelikli giriş, anahtar kelime, güncelleme tarihi, otomatik içindekiler menüsü ve SSS yapılandırılmış verisiyle güncellendi.
 
 ### Yeni sorgu kümeleri ve üçüncü taraf kaynaklar
 
@@ -119,10 +119,11 @@ Kurumsal teklif sayfaları kişi sayısı, menü, teslimat ve faturalama bilgile
 | `/blog/sisli-nisantasi-besiktas-ofis-yemegi-catering/` | Harbiye, Osmanbey, Nişantaşı, Şişli ve Beşiktaş teslimat planı | Plaza mal kabul, güvenlik kaydı ve trafik tamponu planlaması |
 | `/blog/catering-gida-guvenligi-sicaklik-ve-hijyen-kontrolu/` | Catering hijyen, 63 °C sıcak tutma, kayıt belgesi ve 72 saat şahit numune | 5996 sayılı Kanun, Gıda Hijyeni Yönetmeliği, İşletme Kayıt Belgesi — [Tarım ve Orman Bakanlığı GKGM](https://www.tarimorman.gov.tr/GKGM) · [e-Devlet Kayıt Belgesi](https://www.turkiye.gov.tr/tarim-ve-orman-bakanligi-gida-isletmesi-kayit-belgesi-basvurusu) |
 | `/blog/kurumsal-catering-sozlesmesi-ve-tedarikci-secimi/` | 3–50 kişilik ofisler için catering tedarikçisi puanlama ve seçimi | 7 kriterli tedarikçi değerlendirme matrisi ve deneme siparişi geçiş planı |
+| `/blog/coffee-break-ve-kokteyl-ikram-plani/` | Kurumsal coffee break, toplantı arası ikram ve kokteyl planlaması | Süre, kişi sayısı, ekipman ve bütçe kalemlerine göre ikram formatı karşılaştırması |
 
 ### Teknik SEO ve GEO iyileştirmeleri
 
 - **Yapay zekâ arama tarayıcıları (`robots.txt`)**: `OAI-SearchBot` yanında `ChatGPT-User`, `PerplexityBot`, `Perplexity-User`, `Claude-SearchBot`, `Claude-User` ve `Google-Extended` için açık izin tanımlandı.
-- **Otomatik `/llms.txt` üretimi**: Derleme sırasında `src/seo.mjs`, `src/blog.mjs` ve `public/runtime/kasik-payi-menu.mjs` tek kaynağından beslenen `/llms.txt` üretiliyor; marka kimliği, Beyoğlu mutfak adresi, örnek menü fiyatları ve tüm rehberlerin canonical bağlantıları sunuluyor.
-- **Yayın tarihi ve `FAQPage` eşleşmesi**: Yeni rehberlerde görünür `<time datetime="2026-11-28">` alanı `BlogPosting.datePublished` / `dateModified` ve `sitemap.xml` `<lastmod>` etiketiyle birebir eşleşiyor; görünür `<details><summary>` SSS bölümleri ise aynı veriden üretilen `FAQPage` JSON-LD ile senkron tutuluyor.
-- **Yerel kapsam (`areaServed`)**: `FoodEstablishment` ve `Service` yapılandırılmış verisine Taksim yanında Şişhane, Karaköy, Galata ve Cihangir eklendi.
+- **Otomatik `/llms.txt` ve `/feed.xml` (RSS 2.0) üretimi**: Derleme sırasında `src/seo.mjs`, `src/blog.mjs` ve `public/runtime/kasik-payi-menu.mjs` tek kaynağından beslenen `/llms.txt` ve `/feed.xml` üretiliyor; her sayfanın `<head>` bölümünde `hreflang="tr"`, `hreflang="x-default"` ve RSS `alternate` bağlantısı bulunuyor.
+- **Tüm sitede senkron `FAQPage`, `BlogPosting` ve `Menu` şeması**: Ana sayfa, üç hizmet sayfası, `/menu/` ve 42 blog rehberinin tamamında görünür `<details><summary>` SSS blokları otomatik olarak `FAQPage` JSON-LD ile eşleşiyor; `BlogPosting` verisine `wordCount`, `keywords`, `dateModified`, `article:*` Open Graph etiketleri ve otomatik `İçindekiler` (`#id` başlık çapaları) eklendi. `/menu/` sayfasındaki `MenuSection` öğeleri `TRY` para birimli `Offer` fiyatlarıyla zenginleştirildi.
+- **Yerel kapsam ve E-E-A-T (`areaServed`, `postalCode`, `priceRange`, `knowsAbout`)**: `FoodEstablishment` verisine posta kodu (`34435`), fiyat aralığı (`260–330 TL`), uzmanlık alanları ve Taksim yanında Şişhane, Karaköy, Galata, Cihangir eklendi; Vercel önbellek ve güvenlik başlıkları (`vercel.json`) tanımlandı.

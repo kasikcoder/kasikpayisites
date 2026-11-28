@@ -86,7 +86,7 @@ const serviceAreas = [
   { '@type': 'City', name: 'İstanbul' },
 ];
 
-export function structuredData(path, page) {
+export function structuredData(path, page, extra = {}) {
   const url = origin + path;
   const serviceId = url + '#hizmet';
   const breadcrumbId = url + '#sayfa-yolu';
@@ -99,6 +99,9 @@ export function structuredData(path, page) {
   const webpageId = url + '#webpage';
   const articleId = url + '#makale';
   const imageId = url + '#gorsel';
+  const prices = menus.map(item => item.price);
+  const priceRange = `${Math.min(...prices)}–${Math.max(...prices)} TL`;
+  const faqs = extra.faqs?.length ? extra.faqs : page.faqs;
   const breadcrumbs = [
     { name: 'Ana sayfa', item: origin + '/' },
     ...(article ? [{ name: blogOverview.label, item: origin + blogPath }] : []),
@@ -119,6 +122,17 @@ export function structuredData(path, page) {
         image: [pages['/'].image.url, origin + '/media/kp-hikaye-sofra.webp'],
         description: 'Beyoğlu mutfağından İstanbul’a 3–50 kişilik ofis yemekleri, toplantı ve davet menüleri hazırlayan catering işletmesi.',
         servesCuisine: ['Türk mutfağı', 'Ev yemekleri'],
+        priceRange,
+        knowsAbout: [
+          'Ofis yemeği',
+          'Kurumsal catering',
+          'Toplantı catering',
+          'Evde davet yemeği',
+          'Beyoğlu catering',
+          'Taksim toplu yemek',
+          'Şişhane ofis yemeği',
+          'Türk mutfağı',
+        ],
         hasMenu: origin + menuPath,
         hasOfferCatalog: {
           '@type': 'OfferCatalog',
@@ -133,6 +147,7 @@ export function structuredData(path, page) {
           streetAddress: 'Şehit Muhtar Mah. Zambak Sk. No: 8',
           addressLocality: 'Beyoğlu',
           addressRegion: 'İstanbul',
+          postalCode: '34435',
           addressCountry: 'TR',
         },
         areaServed: serviceAreas,
@@ -195,22 +210,21 @@ export function structuredData(path, page) {
         description: page.description,
         inLanguage: 'tr',
         isAccessibleForFree: true,
-        ...(page.publishedAt && {
-          datePublished: page.publishedAt,
-          dateModified: page.updatedAt ?? page.publishedAt,
-        }),
+        ...(page.publishedAt && { datePublished: page.publishedAt }),
+        ...((page.updatedAt ?? page.publishedAt) && { dateModified: page.updatedAt ?? page.publishedAt }),
         ...(page.keywords?.length && { keywords: page.keywords.join(', ') }),
+        ...(extra.wordCount && { wordCount: extra.wordCount }),
         mainEntityOfPage: { '@id': webpageId },
         author: { '@type': 'Organization', '@id': businessId, name: brand, url: origin + aboutPath },
         publisher: { '@id': businessId },
         image: { '@id': imageId },
       }] : []),
-      ...(article && page.faqs?.length ? [{
+      ...(faqs?.length ? [{
         '@type': 'FAQPage',
         '@id': url + '#sss',
         url,
         inLanguage: 'tr',
-        mainEntity: page.faqs.map(({ q, a }) => ({
+        mainEntity: faqs.map(({ q, a }) => ({
           '@type': 'Question',
           name: q,
           acceptedAnswer: { '@type': 'Answer', text: a },
@@ -223,9 +237,15 @@ export function structuredData(path, page) {
         name: 'Kaşık Payı örnek catering menüleri',
         description: page.description,
         inLanguage: 'tr',
-        hasMenuSection: menus.map(({ dishes }, index) => ({
+        hasMenuSection: menus.map(({ price, dishes }, index) => ({
           '@type': 'MenuSection',
           name: 'Menü ' + (index + 1),
+          offers: {
+            '@type': 'Offer',
+            price,
+            priceCurrency: 'TRY',
+            availability: 'https://schema.org/InStock',
+          },
           hasMenuItem: dishes.map(name => ({ '@type': 'MenuItem', name })),
         })),
       }] : []),
