@@ -139,13 +139,20 @@ test('canonical pages and in-page sections resolve from internal HTML links', as
   }
 });
 
-test('sitemap lists all canonical pages and robots allows search discovery', async () => {
+test('sitemap lists all canonical pages, robots allows AI search bots and llms.txt summarizes the site', async () => {
   assert.equal(origin, 'https://www.kasikpayi.com');
-  const [sitemap, robots] = await Promise.all([read('sitemap.xml'), read('robots.txt')]);
+  const [sitemap, robots, llms] = await Promise.all([read('sitemap.xml'), read('robots.txt'), read('llms.txt')]);
   const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, url]) => url);
   assert.deepEqual(urls, Object.keys(pages).map(path => origin + path));
-  assert.match(robots, /User-agent: OAI-SearchBot\nAllow: \//);
+  for (const bot of ['OAI-SearchBot', 'ChatGPT-User', 'PerplexityBot', 'Claude-SearchBot', 'Google-Extended']) {
+    assert.match(robots, new RegExp(`User-agent: ${bot}\\nAllow: /`));
+  }
   assert.ok(robots.includes(`Sitemap: ${origin}/sitemap.xml`));
+  assert.ok(llms.includes('# Kaşık Payı'));
+  assert.ok(llms.includes('Şehit Muhtar Mah. Zambak Sk. No: 8, Beyoğlu / İstanbul'));
+  for (const post of blogPosts) {
+    assert.ok(llms.includes(origin + post.path), 'llms.txt lists ' + post.path);
+  }
 });
 
 test('static host permanently redirects HTML aliases to the corresponding sitemap URLs', async () => {
@@ -198,12 +205,25 @@ test('blog guides are linked from their service and hub and have crawlable artic
     ]);
     assert.match(html, /<meta property="og:type" content="article">/);
     assert.match(html, /<article class="kp-blog-article"[^>]*>[\s\S]*<h2>[\s\S]*<\/article>/);
-    assert.doesNotMatch(html, /<script[^>]+src=/);
+    assert.doesNotMatch(html, /<script[^>]+src="(?!https:\/\/www\.googletagmanager\.com\/gtag\/js\?)/);
     assert.ok(hub.includes(`href="${post.path}"`));
     assert.ok(serviceHtml[post.topic].includes(`href="${post.path}"`));
     const quoteLink = new URL(html.match(/href="(https:\/\/wa\.me\/\d+\?text=[^"]+)"/)[1]);
     assert.ok(quoteLink.searchParams.get('text').includes(post.label));
     if (post.introduction) assert.ok(html.includes(`<p>${post.introduction}</p>`));
+    if (post.publishedAt) {
+      assert.equal(article.datePublished, post.publishedAt);
+      assert.equal(article.dateModified, post.updatedAt ?? post.publishedAt);
+      assert.ok(html.includes(`<time datetime="${post.publishedAt}">`), post.path + ' shows matching visible date');
+    }
+    if (post.faqs?.length) {
+      const faqSchema = graph.find(entity => entity['@type'] === 'FAQPage');
+      assert.equal(faqSchema?.mainEntity.length, post.faqs.length);
+      for (const { q, a } of post.faqs) {
+        assert.ok(html.includes(`<summary>${q}</summary>`), post.path + ' renders FAQ question');
+        assert.ok(html.includes(`<p>${a}</p>`), post.path + ' renders FAQ answer');
+      }
+    }
 
     for (const [, href] of html.matchAll(/href="(\/blog\/[^"#]*)/g)) {
       assert.ok(Object.hasOwn(pages, href), post.path + ' links to a known guide: ' + href);

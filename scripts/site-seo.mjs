@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { brand, origin, pages, structuredData, whatsapp } from '../src/seo.mjs';
+import { aboutPath, brand, instagram, menuPath, origin, pages, phone, structuredData, whatsapp } from '../src/seo.mjs';
+import { blogPath, blogPosts, blogTopics } from '../src/blog.mjs';
 import { blogMarkup, serviceGuides } from './blog-markup.mjs';
 import { menuMarkup, menus } from '../public/runtime/kasik-payi-menu.mjs';
 
@@ -86,18 +87,104 @@ function pageHead(path, page, robots) {
   ].join('\n    ');
 }
 
+const latestBlogDate = blogPosts
+  .map(post => post.updatedAt ?? post.publishedAt)
+  .filter(Boolean)
+  .sort()
+  .at(-1);
+
+function buildLlmsTxt() {
+  const menuLines = menus.map(({ price, dishes }, index) =>
+    `- Menü ${index + 1} (${price} TL / kişi başı örnek fiyat): ${dishes.join(', ')}`,
+  );
+  const serviceLinks = [
+    ['/', pages['/'].title, pages['/'].description],
+    ['/ofis-yemegi/', pages['/ofis-yemegi/'].title, pages['/ofis-yemegi/'].description],
+    ['/etkinlik-catering/', pages['/etkinlik-catering/'].title, pages['/etkinlik-catering/'].description],
+    ['/taksim-beyoglu-catering/', pages['/taksim-beyoglu-catering/'].title, pages['/taksim-beyoglu-catering/'].description],
+    [menuPath, pages[menuPath].title, pages[menuPath].description],
+    [aboutPath, pages[aboutPath].title, pages[aboutPath].description],
+    [blogPath, pages[blogPath].title, pages[blogPath].description],
+  ].map(([path, title, description]) => `- [${title}](${origin}${path}): ${description}`);
+
+  const topicBlocks = blogTopics.flatMap(topic => [
+    `### ${topic.title}`,
+    ...blogPosts
+      .filter(post => post.topic === topic.id)
+      .map(post => `- [${post.label}](${origin}${post.path}): ${post.description}`),
+    '',
+  ]);
+
+  return [
+    `# ${brand} (Kaşıkpayı Catering)`,
+    '',
+    '> İstanbul Beyoğlu’ndaki hazırlık mutfağından Taksim, Beyoğlu, Şişhane, Karaköy, Galata, Cihangir ve adres uygunluğuna göre İstanbul’un diğer bölgelerine 3–50 kişilik sıcak ofis yemeği, toplantı ve özel davet catering hizmeti sunan Türk mutfağı ve ev yemekleri mutfağı.',
+    '',
+    '## İşletme Bilgileri',
+    '- Adres: Şehit Muhtar Mah. Zambak Sk. No: 8, Beyoğlu / İstanbul',
+    `- Telefon: ${phone}`,
+    `- WhatsApp teklif hattı: ${whatsapp}`,
+    `- Instagram: ${instagram}`,
+    '- Sipariş aralığı: 3–50 kişilik tek günlük veya düzenli ofis yemeği, toplantı ve özel davet menüleri (üç servisli özel davet paketi en az 8 kişiliktir)',
+    '- Faturalandırma: Tüm siparişler için fatura; düzenli ofis yemeklerinde aylık faturalandırma seçeneği',
+    '',
+    '## Örnek Günlük Menüler',
+    ...menuLines,
+    '',
+    '## Ana Sayfalar',
+    ...serviceLinks,
+    '',
+    '## Catering ve Ofis Yemeği Rehberleri',
+    ...topicBlocks,
+  ].join('\n');
+}
+
 const crawlFiles = {
   '/robots.txt': {
     type: 'text/plain; charset=utf-8',
-    body: `User-agent: *\nAllow: /\n\nUser-agent: OAI-SearchBot\nAllow: /\n\nSitemap: ${origin}/sitemap.xml\n`,
+    body: [
+      'User-agent: *',
+      'Allow: /',
+      '',
+      'User-agent: OAI-SearchBot',
+      'Allow: /',
+      '',
+      'User-agent: ChatGPT-User',
+      'Allow: /',
+      '',
+      'User-agent: PerplexityBot',
+      'Allow: /',
+      '',
+      'User-agent: Perplexity-User',
+      'Allow: /',
+      '',
+      'User-agent: Claude-SearchBot',
+      'Allow: /',
+      '',
+      'User-agent: Claude-User',
+      'Allow: /',
+      '',
+      'User-agent: Google-Extended',
+      'Allow: /',
+      '',
+      `Sitemap: ${origin}/sitemap.xml`,
+      '',
+    ].join('\n'),
+  },
+  '/llms.txt': {
+    type: 'text/plain; charset=utf-8',
+    body: buildLlmsTxt(),
   },
   '/sitemap.xml': {
     type: 'application/xml; charset=utf-8',
     body: [
       '<?xml version="1.0" encoding="UTF-8"?>',
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">',
-      ...Object.entries(pages).map(([path, { image }]) =>
-        `  <url>\n    <loc>${escapeHtml(origin + path)}</loc>\n    <image:image><image:loc>${escapeHtml(image.url)}</image:loc></image:image>\n  </url>`),
+      ...Object.entries(pages).map(([path, page]) => {
+        const lastmod = page.updatedAt ?? page.publishedAt ?? (path === blogPath ? latestBlogDate : undefined);
+        const modTag = lastmod ? `\n    <lastmod>${escapeHtml(lastmod)}</lastmod>` : '';
+        return `  <url>\n    <loc>${escapeHtml(origin + path)}</loc>${modTag}\n    <image:image><image:loc>${escapeHtml(page.image.url)}</image:loc></image:image>\n  </url>`;
+      }),
       '</urlset>',
       '',
     ].join('\n'),

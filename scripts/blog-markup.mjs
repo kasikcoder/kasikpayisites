@@ -1,6 +1,36 @@
 import { blogPath, blogPosts, blogTopics } from '../src/blog.mjs';
 import { aboutPath, brand, pages, whatsapp } from '../src/seo.mjs';
 
+const trDateFormat = new Intl.DateTimeFormat('tr-TR', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+
+function formatTrDate(isoDate) {
+  return trDateFormat.format(new Date(`${isoDate}T00:00:00Z`));
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+}
+
+function faqSection(faqs) {
+  if (!faqs?.length) return '';
+  return `<section class="kp-blog-faq" aria-labelledby="sss-baslik">
+    <h2 id="sss-baslik">Sık sorulan sorular</h2>
+    ${faqs.map(({ q, a }) => `<details>
+      <summary>${escapeHtml(q)}</summary>
+      <p>${escapeHtml(a)}</p>
+    </details>`).join('\n')}
+  </section>`;
+}
+
 function breadcrumbs(path, page) {
   const blogLink = page.type === 'article'
     ? `<li><a href="${blogPath}">${pages[blogPath].label}</a></li>`
@@ -66,10 +96,13 @@ export function blogMarkup(path, page, image, articleHtml) {
   const editorial = blogPosts.filter(post => post.path !== path && editorialPaths.has(post.path));
   const related = [...editorial, ...blogPosts.filter(post =>
     post.topic === topic.id && post.path !== path && !editorialPaths.has(post.path),
-  )].slice(0, 3);
+  )].slice(0, 4);
   const quoteMessage = encodeURIComponent(
     `Merhaba Kaşık Payı, “${page.label}” rehberinizi okudum. Yemek teklifi almak istiyorum.\nTarih ve yemek saati: \nKişi sayısı: \nTeslimat adresi: `,
   );
+  const dateTag = page.publishedAt
+    ? `<time datetime="${page.publishedAt}">${formatTrDate(page.publishedAt)}</time>`
+    : '';
 
   return {
     start: `<main id="icerik" class="kp-service-shell">
@@ -79,11 +112,14 @@ export function blogMarkup(path, page, image, articleHtml) {
           <a class="kp-blog-topic-link" href="${blogPath}#${topic.id}">${topic.title}</a>
           <h1 id="sayfa-baslik">${page.label}</h1>
           <p>${page.introduction ?? page.description}</p>
-          <a class="kp-blog-author" href="${aboutPath}" rel="author">${brand}</a>
+          <div class="kp-blog-meta">
+            <a class="kp-blog-author" href="${aboutPath}" rel="author">${brand}</a>${dateTag}
+          </div>
         </header>
         ${image}
         <div class="kp-service-flow">`,
-    end: `</div>
+    end: `${faqSection(page.faqs)}
+        </div>
       </article>
       <aside class="kp-blog-article kp-blog-next" aria-labelledby="sonraki-baslik">
         <h2 id="sonraki-baslik">Siparişinizi planlayın</h2>

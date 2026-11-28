@@ -78,6 +78,10 @@ const businessId = origin + '/#isletme';
 const commercialServices = ['/ofis-yemegi/', '/etkinlik-catering/'];
 const serviceAreas = [
   { '@type': 'Place', name: 'Taksim', containedInPlace: { '@type': 'AdministrativeArea', name: 'Beyoğlu' } },
+  { '@type': 'Place', name: 'Şişhane', containedInPlace: { '@type': 'AdministrativeArea', name: 'Beyoğlu' } },
+  { '@type': 'Place', name: 'Karaköy', containedInPlace: { '@type': 'AdministrativeArea', name: 'Beyoğlu' } },
+  { '@type': 'Place', name: 'Galata', containedInPlace: { '@type': 'AdministrativeArea', name: 'Beyoğlu' } },
+  { '@type': 'Place', name: 'Cihangir', containedInPlace: { '@type': 'AdministrativeArea', name: 'Beyoğlu' } },
   { '@type': 'AdministrativeArea', name: 'Beyoğlu', containedInPlace: { '@type': 'City', name: 'İstanbul' } },
   { '@type': 'City', name: 'İstanbul' },
 ];
@@ -190,10 +194,27 @@ export function structuredData(path, page) {
         articleSection: blogTopics.find(topic => topic.id === page.topic).title,
         description: page.description,
         inLanguage: 'tr',
+        isAccessibleForFree: true,
+        ...(page.publishedAt && {
+          datePublished: page.publishedAt,
+          dateModified: page.updatedAt ?? page.publishedAt,
+        }),
+        ...(page.keywords?.length && { keywords: page.keywords.join(', ') }),
         mainEntityOfPage: { '@id': webpageId },
         author: { '@type': 'Organization', '@id': businessId, name: brand, url: origin + aboutPath },
         publisher: { '@id': businessId },
         image: { '@id': imageId },
+      }] : []),
+      ...(article && page.faqs?.length ? [{
+        '@type': 'FAQPage',
+        '@id': url + '#sss',
+        url,
+        inLanguage: 'tr',
+        mainEntity: page.faqs.map(({ q, a }) => ({
+          '@type': 'Question',
+          name: q,
+          acceptedAnswer: { '@type': 'Answer', text: a },
+        })),
       }] : []),
       ...(menu ? [{
         '@type': 'Menu',

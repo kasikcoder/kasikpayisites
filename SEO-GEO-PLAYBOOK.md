@@ -98,3 +98,31 @@ Kurumsal teklif sayfaları kişi sayısı, menü, teslimat ve faturalama bilgile
 2. Search Console’da `/sitemap.xml` gönderin. Ana sayfa, menü, üç hizmet sayfası ve her blog grubundan bir örneği URL Denetimi ile kontrol edin. Taramaya ve sayfa indeksine ek olarak mobil Core Web Vitals’ı gerçek kullanıcı verisi oluştuğunda takip edin. [Search Console başlangıç rehberi](https://developers.google.com/search/docs/monitor-debug/search-console-start)
 3. Google İşletme Profili’nde uygunluğu, telefon, sipariş sitesi, kategori ve gerçek teslimat alanını doğrulayın. Yalnızca teslimat yapan mutfaklar için Google, hizmet alanı tanımlanmasını ve profil adresinin gizlenmesini istiyor. [Google İşletme Profili kuralları](https://support.google.com/business/answer/3038177)
 4. İlk 28 güne ait gösterim, tıklama, sayfa ve sorgu dağılımını kaydedin. Sonraki 28 gün ile marka, yerel teslimat, ofis yemeği ve etkinlik kümelerini ayrı kıyaslayın. WhatsApp bağlantısı tıklaması ile gerçekleşen teklif talebi ayrı metriklerdir. Search Console arayüzünde mevcutsa üretken arama raporunu da izleyin. [Google üretken arama performans raporu](https://developers.google.com/search/blog/2026/06/gen-ai-performance-reports)
+
+## 28 Kasım 2026 SEO ve GEO genişletme araştırması
+
+Üçüncü dalga araştırmada Türkiye’de 2026 mevzuatı, kurumsal satın alma soruları, yerel semt lojistiği ve yüksek arama niyetli özel gün sorgularını üçüncü taraf resmî kaynaklarla doğrulayarak 12 yeni rehber eklendi (toplam 41 rehber, 48 canonical sayfa).
+
+### Yeni sorgu kümeleri ve üçüncü taraf kaynaklar
+
+| Rehber yolu | Hedef arama niyeti | Doğrulanan üçüncü taraf kaynaklar |
+| --- | --- | --- |
+| `/blog/yemek-karti-mi-ofis-yemegi-mi/` | 2026 yemek bedeli istisnası (300 TL) ile işyerinde catering vergi/SGK karşılaştırması | 332 Seri No.lu Gelir Vergisi Genel Tebliği (31 Aralık 2025 Resmî Gazete, günlük 300 TL KDV hariç), 7577 sayılı Kanun (17 Nisan 2026, SGK 300 TL eşitlemesi), GVK md. 23/8 — [GİB Mevzuat](https://www.gib.gov.tr/mevzuat) · [SGK](https://www.sgk.gov.tr/) |
+| `/blog/ofis-yemegi-kdv-ve-fatura-giderlestirme/` | Catering %10 KDV, 5/10 tevkifat kapsamı ve aylık ofis faturası | 2007/13033 sayılı Karar eki II sayılı liste 24. sıra (%10 KDV), KDV Genel Uygulama Tebliği tevkifat hükümleri — [GİB Mevzuat](https://www.gib.gov.tr/mevzuat) |
+| `/blog/dengeli-ve-vejetaryen-ofis-ogle-menusu/` | Sağlıklı, ağırlık yapmayan ve vejetaryen uyumlu ofis öğle menüsü | T.C. Sağlık Bakanlığı HSGM Türkiye Beslenme Rehberi (TÜBER) Sağlıklı Yemek Tabağı — [HSGM Beslenme](https://hsgm.saglik.gov.tr/tr/beslenme.html) · [Türk Gıda Kodeksi](https://www.tarimorman.gov.tr/Konular/Gida-Ve-Yem-Hizmetleri/Gida-Hizmetleri/Kodeks?Ziyaretci=Tuketici) |
+| `/blog/ofiste-sabah-toplantisi-kahvalti-ve-brunch-ikrami/` | 09.00–11.30 ofis toplantısı kahvaltı/brunch akışı | Alerjen bildirimi ve kurumsal toplantı zamanlama pratiği |
+| `/blog/evde-nisan-soz-ve-aile-daveti-catering/` | Evde 15–40 kişilik söz, nişan ve aile yemeği catering planı | Evde davet oturma kapasitesi, servis akışı ve üç servisli paket alt sınırı (8 kişi) |
+| `/blog/kurumsal-iftar-ve-ramazan-yemegi-plani/` | Kurumsal ofis iftarı ve Ramazan toplu yemek zamanlaması | İftar öncesi 25–35 dk sıcak teslimat penceresi ve 63 °C üzeri muhafaza |
+| `/blog/mevlut-ve-taziye-yemegi-toplu-siparis/` | Evde/iş yerinde 15–50 kişilik mevlüt ve taziye yemeği | Kapalı porsiyon paket vs toplu servis karşılaştırması ve geleneksel menüler |
+| `/blog/yilbasi-ve-sirket-kutlamasi-ofis-catering/` | Yılbaşı, yıl sonu ve şirket kutlaması için ofis catering | Aralık yoğunluğu için 2 haftalık hazırlık takvimi ve mesai sonu servis kurgusu |
+| `/blog/sishane-karakoy-galata-ofis-yemegi-teslimati/` | Şişhane, Galata, Karaköy ve Asmalımescit ofis yemeği lojistiği | İstiklal Caddesi yayalaştırma / saat 10.00 sonrası araç kısıtı ve tarihi han girişleri — [İBB Ulaşım](https://ulasim.ibb.istanbul/) · [Beyoğlu Belediyesi](https://beyoglu.bel.tr/) |
+| `/blog/sisli-nisantasi-besiktas-ofis-yemegi-catering/` | Harbiye, Osmanbey, Nişantaşı, Şişli ve Beşiktaş teslimat planı | Plaza mal kabul, güvenlik kaydı ve trafik tamponu planlaması |
+| `/blog/catering-gida-guvenligi-sicaklik-ve-hijyen-kontrolu/` | Catering hijyen, 63 °C sıcak tutma, kayıt belgesi ve 72 saat şahit numune | 5996 sayılı Kanun, Gıda Hijyeni Yönetmeliği, İşletme Kayıt Belgesi — [Tarım ve Orman Bakanlığı GKGM](https://www.tarimorman.gov.tr/GKGM) · [e-Devlet Kayıt Belgesi](https://www.turkiye.gov.tr/tarim-ve-orman-bakanligi-gida-isletmesi-kayit-belgesi-basvurusu) |
+| `/blog/kurumsal-catering-sozlesmesi-ve-tedarikci-secimi/` | 3–50 kişilik ofisler için catering tedarikçisi puanlama ve seçimi | 7 kriterli tedarikçi değerlendirme matrisi ve deneme siparişi geçiş planı |
+
+### Teknik SEO ve GEO iyileştirmeleri
+
+- **Yapay zekâ arama tarayıcıları (`robots.txt`)**: `OAI-SearchBot` yanında `ChatGPT-User`, `PerplexityBot`, `Perplexity-User`, `Claude-SearchBot`, `Claude-User` ve `Google-Extended` için açık izin tanımlandı.
+- **Otomatik `/llms.txt` üretimi**: Derleme sırasında `src/seo.mjs`, `src/blog.mjs` ve `public/runtime/kasik-payi-menu.mjs` tek kaynağından beslenen `/llms.txt` üretiliyor; marka kimliği, Beyoğlu mutfak adresi, örnek menü fiyatları ve tüm rehberlerin canonical bağlantıları sunuluyor.
+- **Yayın tarihi ve `FAQPage` eşleşmesi**: Yeni rehberlerde görünür `<time datetime="2026-11-28">` alanı `BlogPosting.datePublished` / `dateModified` ve `sitemap.xml` `<lastmod>` etiketiyle birebir eşleşiyor; görünür `<details><summary>` SSS bölümleri ise aynı veriden üretilen `FAQPage` JSON-LD ile senkron tutuluyor.
+- **Yerel kapsam (`areaServed`)**: `FoodEstablishment` ve `Service` yapılandırılmış verisine Taksim yanında Şişhane, Karaköy, Galata ve Cihangir eklendi.

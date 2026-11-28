@@ -1,6 +1,6 @@
 # Kaşık Payı
 
-Türkçe ana sayfa, üç catering hizmet sayfası, menü ve fiyat karşılaştırma sayfası, işletme tanıtımı ve 29 yazılı catering rehberi. Ana sayfa mevcut Framer animasyonlarını kullanır. Menü, teslimat, hizmet ve iletişim içeriği ilk HTML yanıtında bulunur.
+Türkçe ana sayfa, üç catering hizmet sayfası, menü ve fiyat karşılaştırma sayfası, işletme tanıtımı ve 41 yazılı catering rehberi. Ana sayfa mevcut Framer animasyonlarını kullanır. Menü, teslimat, hizmet, iletişim içeriği ve `/llms.txt` ile yapılandırılmış veriler ilk HTML yanıtında ve statik derlemede bulunur.
 
 ```sh
 npm install

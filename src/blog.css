@@ -87,10 +87,128 @@
   margin-block: 14px;
 }
 
+.kp-blog-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  font-size: .9rem;
+}
+
+.kp-blog-meta time {
+  color: #6f4c30;
+}
+
 .kp-blog-author,
 .kp-blog-topic-link {
   font-size: .9rem;
   font-weight: 700;
+}
+
+.kp-table-wrap {
+  overflow-x: auto;
+  max-inline-size: 100%;
+  margin-block: 18px;
+  container-type: inline-size;
+}
+
+.kp-table-wrap:focus-visible {
+  outline: 2px solid #1d573f;
+  outline-offset: 4px;
+}
+
+.kp-table-wrap table {
+  margin-block: 0;
+  min-inline-size: 32rem;
+}
+
+.kp-table-wrap caption {
+  position: sticky;
+  inset-inline-start: 0;
+  max-inline-size: 100cqi;
+}
+
+.kp-blog-sources {
+  margin-top: 22px;
+  padding: 14px 18px;
+  border: 1px solid #492d1738;
+  border-radius: 12px;
+  background: #f6e3cd80;
+  font-size: .94rem;
+}
+
+.kp-blog-sources h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  color: #1d573f;
+}
+
+.kp-blog-sources ul {
+  margin: 0;
+  padding-inline-start: 1.25rem;
+}
+
+.kp-blog-faq details {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border: 1px solid #492d1738;
+  border-radius: 12px;
+  background: #fff7ee;
+}
+
+.kp-blog-faq summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6ch;
+  min-height: 36px;
+  list-style: none;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.kp-blog-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.kp-blog-faq summary::before {
+  content: "";
+  inline-size: 0.55em;
+  block-size: 0.55em;
+  flex-shrink: 0;
+  border-inline-end: 2px solid currentColor;
+  border-block-end: 2px solid currentColor;
+  rotate: -45deg;
+  translate: 0 -0.05em;
+}
+
+.kp-blog-faq details[open] > summary::before {
+  rotate: 45deg;
+  translate: 0 -0.15em;
+}
+
+.kp-blog-faq details::details-content {
+  interpolate-size: allow-keywords;
+  overflow: clip;
+  contain: layout;
+}
+
+.kp-blog-faq details:not([open])::details-content {
+  block-size: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .kp-blog-faq summary::before {
+    transition: rotate 0.2s ease;
+  }
+
+  .kp-blog-faq details::details-content {
+    transition: block-size 0.25s ease, content-visibility 0.25s ease;
+    transition-behavior: allow-discrete;
+  }
+}
+
+.kp-blog-faq details p {
+  margin: 10px 0 4px;
 }
 
 .kp-blog-article > img {
